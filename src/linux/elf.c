@@ -219,9 +219,12 @@ static int open_libc(FILE **fp_out, pid_t pid, size_t *addr)
                     fclose(fp);
                     p = strchr(buf, '/');
                     p[strlen(p) - 1] = '\0';
-                    fp = fopen(p, "r");
+
+                    char fqp[512];
+                    sprintf(fqp, "/proc/%d/root%s", pid, p);
+                    fp = fopen(fqp, "r");
                     if (fp == NULL) {
-                        injector__set_errmsg("failed to open %s. (error: %s)", p, strerror(errno));
+                        injector__set_errmsg("failed to open %s. (error: %s)", fqp, strerror(errno));
                         return INJERR_NO_LIBRARY;
                     }
                     *addr = saddr;
