@@ -46,7 +46,7 @@ static pid_t find_process(const char *name)
         exit(1);
     }
     while ((dent = readdir(dir)) != NULL) {
-        char path[40];
+        char path[PATH_MAX];
         char exepath[PATH_MAX];
         ssize_t len;
         char *exe;
@@ -141,6 +141,8 @@ int main(int argc, char **argv)
         printf("%s\n", injector_error());
         return 1;
     }
+
+    int rv = 0;
     for (i = optind; i < argc; i++) {
         char *libname = argv[i];
         if (injector_inject(injector, libname) == 0) {
@@ -148,8 +150,9 @@ int main(int argc, char **argv)
         } else {
             fprintf(stderr, "could not inject \"%s\"\n", libname);
             fprintf(stderr, "  %s\n", injector_error());
+            rv = 2;
         }
     }
     injector_detach(injector);
-    return 0;
+    return rv;
 }
